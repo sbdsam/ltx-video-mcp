@@ -108,19 +108,18 @@ def get_ltx_workflow(
                 "batch_size": 1,
             },
         },
-        # LTX-Video Conditioning (fügt frame_rate + VAE-Encode hinzu)
-        # Outputs: positive[0], negative[1], latent[2]
+        # LTX-Video Conditioning (fügt frame_rate-Metadaten hinzu)
+        # Outputs: positive[0], negative[1]
         "6": {
             "class_type": "LTXVConditioning",
             "inputs": {
                 "positive": ["3", 0],
                 "negative": ["4", 0],
-                "vae": ["1", 2],
-                "latent": ["5", 0],
                 "frame_rate": fps,
             },
         },
         # Scheduler für distilled Modell (wenig Steps)
+        # latent kommt von EmptyLTXVLatentVideo (Node 5)
         "7": {
             "class_type": "LTXVScheduler",
             "inputs": {
@@ -129,7 +128,7 @@ def get_ltx_workflow(
                 "base_shift": 0.95,
                 "stretch": True,
                 "terminal": 0.1,
-                "latent": ["6", 2],
+                "latent": ["5", 0],
             },
         },
         # Euler Sampler (Standard für LTX-Video)
@@ -162,7 +161,7 @@ def get_ltx_workflow(
                 "guider": ["10", 0],
                 "sampler": ["8", 0],
                 "sigmas": ["7", 0],
-                "latent_image": ["6", 2],
+                "latent_image": ["5", 0],
             },
         },
         # Latents → Pixel-Frames dekodieren
